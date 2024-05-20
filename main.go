@@ -145,11 +145,16 @@ type Walking struct {
 // Формула расчета:
 // ((0.035 * вес_спортсмена_в_кг + (средняя_скорость_в_метрах_в_секунду**2 / рост_в_метрах)
 // * 0.029 * вес_спортсмена_в_кг) * время_тренировки_в_часах * мин_в_ч)
+
+// Формула из задания, в ней рост берут в СМ
+//((CaloriesWeightMultiplier * вес_спортсмена_в_кг + (средняя_скорость_в_метрах_в_секунду**2 / рост_в_сантиметрах) * CaloriesSpeedHeightMultiplier * вес_спортсмена_в_кг) * время_тренировки_в_часах * MinsInHour)
+
 // Это переопределенный метод Calories() из Training.
 func (w Walking) Calories() float64 {
 	// вставьте ваш код ниже
+
 	weightPart := CaloriesWeightMultiplier * w.Training.Weight
-	speedPart := (math.Pow((w.Training.meanSpeed()*KmHInMsec), 2) / w.Height / CmInM) * CaloriesSpeedHeightMultiplier * w.Training.Weight
+	speedPart := (math.Pow((w.Training.meanSpeed()*KmHInMsec), 2) / w.Height) * CaloriesSpeedHeightMultiplier * w.Training.Weight
 	timePart := float64(w.Training.Duration.Hours()) * MinInHours
 	Calories := ((weightPart + speedPart) * timePart)
 	return Calories
@@ -184,6 +189,12 @@ type Swimming struct {
 	CountPool  int // количество пересечений бассейна
 }
 
+func (s Swimming) distance() float64 {
+	// вставьте ваш код ниже
+	distance := float64(s.LengthPool) * float64(s.CountPool) / MInKm
+	return distance
+}
+
 // meanSpeed возвращает среднюю скорость при плавании.
 // Формула расчета:
 // длина_бассейна * количество_пересечений / м_в_км / продолжительность_тренировки
@@ -211,7 +222,7 @@ func (s Swimming) TrainingInfo() InfoMessage {
 	InfoMessage := InfoMessage{
 		TrainingType: s.Training.TrainingType,
 		Duration:     s.Training.Duration,
-		Distance:     s.Training.distance(),
+		Distance:     s.distance(),
 		Speed:        s.meanSpeed(),
 		Calories:     s.Calories(),
 	}
